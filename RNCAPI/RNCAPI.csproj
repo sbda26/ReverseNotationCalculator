@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="SampleInput.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="SampleInput.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\RNC.Library\RNC.Library.csproj" />
   </ItemGroup>
 
