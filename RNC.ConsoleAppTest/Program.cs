@@ -17,6 +17,7 @@ namespace RNC.ConsoleAppTest
 
         static async Task RunMain()
         {
+            // https://www.yogihosting.com/aspnet-core-consume-api/#httpclient
             using (var httpClient = new HttpClient())
             {
                 bool done = false;
