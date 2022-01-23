@@ -13,10 +13,20 @@ namespace RNC.Library
         public CalculateClass()
         {
             _SingleOperandOperators = new List<string> { "!", "sqrt", "cbrt", "log", "log2", "log10", "logB" };
-            _BitwiseOperators = new List<string> { "|", "&", "^" };
+            _BitwiseOperators = new List<string> { "|", "&", "^", "OR", "AND", "XOR" };
             _AllValidOperators = new List<string> { "+", "-", "*", "/", "÷", "**", "%" };
             _AllValidOperators.AddRange(_SingleOperandOperators);
             _AllValidOperators.AddRange(_BitwiseOperators);
+        }
+
+        public bool IsSingleOperandOperator(string operation)  // used by HttpClient programs
+        {
+            if (IsValidOperation(operation) == false)
+                throw new InvalidOperationException("Operator symbol not valid.");
+            else if (IsSingleOperandOperation(operation) == true)
+                return true;
+            else
+                return false;
         }
 
         public double? Calculate(ReverseNotationCalculatorClass rnc)
@@ -28,7 +38,7 @@ namespace RNC.Library
             {
                 if (IsNumeric(value1) == true)
                 {
-                    if (IsSingleOperandOperation(rnc) == true)
+                    if (IsSingleOperandOperation(rnc.Operation) == true)
                     {
                         if (rnc.Value2 != null)
                             throw RNCArgumentException(value2, "Value2", nonNullValue2Error: true);
@@ -67,7 +77,7 @@ namespace RNC.Library
 
         private bool IsFloatingPoint(string value) => double.TryParse(value, out _) == true && long.TryParse(value, out _) == false;
 
-        private bool IsSingleOperandOperation(ReverseNotationCalculatorClass rnc) => _SingleOperandOperators.Contains(rnc.Operation) == true;
+        private bool IsSingleOperandOperation(string operation) => _SingleOperandOperators.Contains(operation) == true;
 
         private bool IsNegative(string value) => value != null && (value.StartsWith("-") || value.EndsWith("-"));
 
@@ -78,10 +88,17 @@ namespace RNC.Library
 
             switch (rnc.Operation)
             {
-                case "&": return v1 & v2;
-                case "|": return v1 | v2;
-                case "^": return v1 ^ v2;
-                default: return null;
+                case "&":
+                case "AND":
+                    return v1 & v2;
+                case "|":
+                case "OR":
+                    return v1 | v2;
+                case "^":
+                case "XOR":
+                    return v1 ^ v2;
+                default:
+                    return null;
             }
         }
 

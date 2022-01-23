@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RNCAPI", "RNCAPI\RNCAPI.csproj", "{2DF11C18-72A1-4777-8985-5318FD89EE6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RNCAPI", "RNCAPI\RNCAPI.csproj", "{2DF11C18-72A1-4777-8985-5318FD89EE6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RNC.Library", "RNC.Library\RNC.Library.csproj", "{0677C9FC-2993-4CB8-ABA9-1FDFD1F77E11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RNC.Library", "RNC.Library\RNC.Library.csproj", "{0677C9FC-2993-4CB8-ABA9-1FDFD1F77E11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RNC.ConsoleAppTest", "RNC.ConsoleAppTest\RNC.ConsoleAppTest.csproj", "{1168AA3B-B45C-4E4D-AE2C-974F1233ED2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0677C9FC-2993-4CB8-ABA9-1FDFD1F77E11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0677C9FC-2993-4CB8-ABA9-1FDFD1F77E11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0677C9FC-2993-4CB8-ABA9-1FDFD1F77E11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1168AA3B-B45C-4E4D-AE2C-974F1233ED2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1168AA3B-B45C-4E4D-AE2C-974F1233ED2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1168AA3B-B45C-4E4D-AE2C-974F1233ED2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1168AA3B-B45C-4E4D-AE2C-974F1233ED2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
