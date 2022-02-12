@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace RNC.Library
@@ -23,16 +24,14 @@ namespace RNC.Library
         {
             if (IsValidOperation(operation) == false)
                 throw new InvalidOperationException("Operator symbol not valid.");
-            else if (IsSingleOperandOperation(operation) == true)
-                return true;
             else
-                return false;
+                return IsSingleOperandOperation(operation);
         }
 
-        public double? Calculate(ReverseNotationCalculatorClass rnc)
+        public string Calculate(ReverseNotationCalculatorClass rnc)
         {
-            string value1 = rnc.Value1 != null ? rnc.Value1.ToString() : null;
-            string value2 = rnc.Value2 != null ? rnc.Value2.ToString() : null;
+            string value1 = rnc.Value1?.ToString();
+            string value2 = rnc.Value2?.ToString();
 
             if (IsValidOperation(rnc.Operation) == true)
             {
@@ -42,6 +41,8 @@ namespace RNC.Library
                     {
                         if (rnc.Value2 != null)
                             throw RNCArgumentException(value2, "Value2", nonNullValue2Error: true);
+                        else if (rnc.Operation == "!")
+                            return Factorial(rnc.Value1);
                         else
                             return SingleOperandOperation(value1, rnc.Operation);
                     }
@@ -81,79 +82,100 @@ namespace RNC.Library
 
         private bool IsNegative(string value) => value != null && (value.StartsWith("-") || value.EndsWith("-"));
 
-        private double? BitwiseOperation(ReverseNotationCalculatorClass rnc)
+        private string BitwiseOperation(ReverseNotationCalculatorClass rnc)
         {
-            long? v1 = Convert.ToInt64(rnc.Value1);
-            long? v2 = Convert.ToInt64(rnc.Value2);
+            long? v1 = Convert.ToInt64(rnc.Value1.ToString());
+            long? v2 = Convert.ToInt64(rnc.Value2.ToString());
+            long? result;
 
             switch (rnc.Operation)
             {
                 case "&":
                 case "AND":
-                    return v1 & v2;
+                    result = v1 & v2;
+                    break;
                 case "|":
                 case "OR":
-                    return v1 | v2;
+                    result = v1 | v2;
+                    break;
                 case "^":
                 case "XOR":
-                    return v1 ^ v2;
+                    result = v1 ^ v2;
+                    break;
                 default:
-                    return null;
+                    result = null;
+                    break;
             }
+
+            return result?.ToString();
         }
 
-        private double? NonBitwiseOperation(ReverseNotationCalculatorClass rnc)
+        private string NonBitwiseOperation(ReverseNotationCalculatorClass rnc)
         {
             double? v1 = Convert.ToDouble(rnc.Value1.ToString());
             double? v2 = Convert.ToDouble(rnc.Value2.ToString());
+            double? result;
 
             switch (rnc.Operation)
             {
-                case "+": return v1 + v2;
-                case "-": return v1 - v2;
-                case "*": return v1 * v2;
+                case "+": result = v1 + v2; break;
+                case "-": result = v1 - v2; break;
+                case "*": result = v1 * v2; break;
                 case "/":
                 case "÷":
                     {
                         if (v2 != 0D)
-                            return v1 / v2;
+                        {
+                            result = v1 / v2;
+                            break;
+                        }
                         else
                             throw new DivideByZeroException("Cannot divide by zero.");
                     }
                 case "**":
-                    return Math.Pow(v1.Value, v2.Value);
+                    result = Math.Pow(v1.Value, v2.Value); break;
                 case "%":
-                    return v1 % v2;
+                    result = v1 % v2; break;
                 default:
-                    return null;
+                    result = null; break;
             }
+
+            return result?.ToString();
         }
 
-        private double? SingleOperandOperation(string value1, string operation)
+        private string SingleOperandOperation(string value1, string operation)
         {
+            double? result;
+
             switch(operation)
             {
-                case "!":
-                    {
-                        if (IsFloatingPoint(value1) == true)
-                            throw RNCArgumentException(value1, "Value1", floatingPointError: true);
-                        else if (IsNegative(value1) == true)
-                            throw RNCArgumentException(value1, "Value1", negativeValueError: true);
-                        else
-                        {
-                            ulong value = Convert.ToUInt64(value1);
-                            for (ulong index = (value - 1); index > 1; index--)
-                                value *= index;
-                            return value;
-                        }
-                    }
-                case "sqrt": return Math.Sqrt(Convert.ToDouble(value1));
-                case "cbrt": return Math.Cbrt(Convert.ToDouble(value1));
-                case "log": return Math.Log(Convert.ToDouble(value1));
-                case "log2": return Math.Log2(Convert.ToDouble(value1));
-                case "log10": return Math.Log10(Convert.ToDouble(value1));
-                case "logB": return Math.ILogB(Convert.ToDouble(value1));
+                case "sqrt": result = Math.Sqrt(Convert.ToDouble(value1));  break;
+                case "cbrt": result = Math.Cbrt(Convert.ToDouble(value1)); break;
+                case "log": result = Math.Log(Convert.ToDouble(value1)); break;
+                case "log2": result = Math.Log2(Convert.ToDouble(value1)); break;
+                case "log10": result = Math.Log10(Convert.ToDouble(value1)); break;
+                case "logB": result = Math.ILogB(Convert.ToDouble(value1)); break;
                 default: throw new NotImplementedException();
+            }
+
+            return result?.ToString();
+        }
+
+        private string Factorial(object valueObj)
+        {
+            string valueStr = valueObj?.ToString();
+
+            if (IsFloatingPoint(valueStr) == true)
+                throw RNCArgumentException(valueStr, "Value1", floatingPointError: true);
+            else if (IsNegative(valueStr) == true)
+                throw RNCArgumentException(valueStr, "Value1", negativeValueError: true);
+            else
+            {
+                ulong valueULong = Convert.ToUInt64(((System.Text.Json.JsonElement)valueObj).ToString());
+                BigInteger valueBigInt = valueULong;
+                for (BigInteger index = (valueBigInt - 1); index > 1; index--)
+                    valueBigInt *= index;
+                return valueBigInt.ToString();
             }
         }
 

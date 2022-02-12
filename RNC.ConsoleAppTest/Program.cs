@@ -9,6 +9,8 @@ namespace RNC.ConsoleAppTest
 {
     class Program
     {
+        private const string _URL = "http://localhost:34626/api/RNC";
+
         static async Task Main(string[] args)
         {
             await RunMain();
@@ -18,24 +20,22 @@ namespace RNC.ConsoleAppTest
         static async Task RunMain()
         {
             // https://www.yogihosting.com/aspnet-core-consume-api/#httpclient
-            using (var httpClient = new HttpClient())
+
+            bool done = false;
+            do
             {
-                bool done = false;
-                do
+                string operation = GetOperation();
+                if (operation.ToUpper() == "Q")
+                    done = true;
+                else
                 {
-                    string operation = GetOperation();
-                    if (operation.ToUpper() == "Q")
-                        done = true;
-                    else
-                    {
-                        bool singleOperandOperator = new CalculateClass().IsSingleOperandOperator(operation);
-                        string operand1 = GetOperand1(singleOperandOperator);
-                        string operand2 = (singleOperandOperator == true) ? null : GetOperand2();
-                        double? result = await GetResult(httpClient, operand1, operand2, operation);
-                        Console.WriteLine(result);
-                    }
-                } while (done == false);
-            }
+                    bool singleOperandOperator = new CalculateClass().IsSingleOperandOperator(operation);
+                    string operand1 = GetOperand1(singleOperandOperator);
+                    string operand2 = (singleOperandOperator == true) ? null : GetOperand2();
+                    string result = await GetResult(operand1, operand2, operation);
+                    Console.WriteLine(result);
+                }
+            } while (done == false);
         }
 
         static string GetOperation()
@@ -60,17 +60,20 @@ namespace RNC.ConsoleAppTest
             return Console.ReadLine();
         }
 
-        private static async Task<double?> GetResult(HttpClient httpClient, string operand1, string operand2, string operation)
+        private static async Task<string> GetResult(string operand1, string operand2, string operation)
         {
             var data = new ReverseNotationCalculatorClass { Value1 = operand1, Value2 = operand2, Operation = operation };
             var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            double? result;
+            string result;
 
-            using (var response = await httpClient.PostAsync("http://localhost:34626/api/RNC", content))
+            using (var httpClient = new HttpClient())
             {
-                string apiResponse = await response.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<double?>(apiResponse);
+                using (var response = await httpClient.PostAsync(_URL, content))
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+                    result = JsonConvert.DeserializeObject<string>(apiResponse);
+                }
             }
 
             return result;

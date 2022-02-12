@@ -30,12 +30,12 @@ namespace RNCAPI.Controllers
 
         // POST api/<RNCController>
         [HttpPost]
-        public ActionResult<double?> Post([FromBody] ReverseNotationCalculatorClass rnc)
+        public ActionResult<string> Post([FromBody] ReverseNotationCalculatorClass rnc)
         {
             var calc = new CalculateClass();
             try
             {
-                double? result = calc.Calculate(rnc);
+                string result = calc.Calculate(rnc);
                 return result;
             }
             catch(Exception ex)
