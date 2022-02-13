@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
@@ -7,54 +6,31 @@ namespace RNC.Library
 {
     public class CalculateClass
     {
-        private readonly List<string> _SingleOperandOperators;
-        private readonly List<string> _BitwiseOperators;
-        private readonly List<string> _AllValidOperators;
-
-        public CalculateClass()
-        {
-            _SingleOperandOperators = new List<string> { "!", "sqrt", "cbrt", "log", "log2", "log10", "logB" };
-            _BitwiseOperators = new List<string> { "|", "&", "^", "OR", "AND", "XOR" };
-            _AllValidOperators = new List<string> { "+", "-", "*", "/", "÷", "**", "%" };
-            _AllValidOperators.AddRange(_SingleOperandOperators);
-            _AllValidOperators.AddRange(_BitwiseOperators);
-        }
-
-        public bool IsSingleOperandOperator(string operation)  // used by HttpClient programs
-        {
-            if (IsValidOperation(operation) == false)
-                throw new InvalidOperationException("Operator symbol not valid.");
-            else
-                return IsSingleOperandOperation(operation);
-        }
-
         public string Calculate(ReverseNotationCalculatorClass rnc)
         {
             string value1 = rnc.Value1?.ToString();
             string value2 = rnc.Value2?.ToString();
 
-            if (IsValidOperation(rnc.Operation) == true)
+            if (OperatorsClass.IsValidOperation(rnc.Operation) == true)
             {
-                if (IsNumeric(value1) == true)
+                if (OperatorsClass.IsNumeric(value1) == true)
                 {
-                    if (IsSingleOperandOperation(rnc.Operation) == true)
+                    if (OperatorsClass.IsSingleOperandOperation(rnc.Operation) == true)
                     {
                         if (rnc.Value2 != null)
                             throw RNCArgumentException(value2, "Value2", nonNullValue2Error: true);
-                        else if (rnc.Operation == "!")
-                            return Factorial(rnc.Value1);
                         else
                             return SingleOperandOperation(value1, rnc.Operation);
                     }
-                    else if (IsNumeric(value2) == true)
+                    else if (OperatorsClass.IsNumeric(value2) == true)
                     {
-                        if (IsBitwiseOperation(rnc.Operation) == false)
+                        if (OperatorsClass.IsBitwiseOperation(rnc.Operation) == false)
                             return NonBitwiseOperation(rnc);
                         else
                         {
-                            if (IsFloatingPoint(value1) == true)
+                            if (OperatorsClass.IsFloatingPoint(value1) == true)
                                 throw RNCArgumentException(value1, "Value1", floatingPointError: true);
-                            else if (IsFloatingPoint(value2) == true)
+                            else if (OperatorsClass.IsFloatingPoint(value2) == true)
                                 throw RNCArgumentException(value2, "Value2", floatingPointError: true);
                             else
                                 return BitwiseOperation(rnc);
@@ -70,17 +46,6 @@ namespace RNC.Library
                 throw new InvalidOperationException("Operator symbol not valid.");
         }
 
-        private bool IsValidOperation(string operation) => _AllValidOperators.Contains(operation);
-
-        private bool IsNumeric(string value) => double.TryParse(value, out _);
-
-        private bool IsBitwiseOperation(string operation) => _BitwiseOperators.Contains(operation);
-
-        private bool IsFloatingPoint(string value) => double.TryParse(value, out _) == true && long.TryParse(value, out _) == false;
-
-        private bool IsSingleOperandOperation(string operation) => _SingleOperandOperators.Contains(operation) == true;
-
-        private bool IsNegative(string value) => value != null && (value.StartsWith("-") || value.EndsWith("-"));
 
         private string BitwiseOperation(ReverseNotationCalculatorClass rnc)
         {
@@ -112,67 +77,83 @@ namespace RNC.Library
 
         private string NonBitwiseOperation(ReverseNotationCalculatorClass rnc)
         {
-            double? v1 = Convert.ToDouble(rnc.Value1.ToString());
-            double? v2 = Convert.ToDouble(rnc.Value2.ToString());
-            double? result;
+            string value1Str = rnc.Value1.ToString();
+            string value2Str = rnc.Value2.ToString();
+            double? value1D = Convert.ToDouble(value1Str);
+            double? value2D = Convert.ToDouble(value2Str);
 
-            switch (rnc.Operation)
+            if (rnc.Operation != "**")
             {
-                case "+": result = v1 + v2; break;
-                case "-": result = v1 - v2; break;
-                case "*": result = v1 * v2; break;
-                case "/":
-                case "÷":
-                    {
-                        if (v2 != 0D)
-                        {
-                            result = v1 / v2;
-                            break;
-                        }
-                        else
-                            throw new DivideByZeroException("Cannot divide by zero.");
-                    }
-                case "**":
-                    result = Math.Pow(v1.Value, v2.Value); break;
-                case "%":
-                    result = v1 % v2; break;
-                default:
-                    result = null; break;
-            }
+                double? result;
 
-            return result?.ToString();
+                switch (rnc.Operation)
+                {
+                    case "+": result = value1D + value2D; break;
+                    case "-": result = value1D - value2D; break;
+                    case "*": result = value1D * value2D; break;
+                    case "/":
+                    case "÷":
+                        {
+                            if (value2D != 0D)
+                            {
+                                result = value1D / value2D;
+                                break;
+                            }
+                            else
+                                throw new DivideByZeroException("Cannot divide by zero.");
+                        }
+                    case "%":
+                        result = value1D % value2D; break;
+                    default:
+                        result = null; break;
+                }
+
+                return result?.ToString();
+            }
+            else
+            {
+                if (OperatorsClass.IsFloatingPoint(value1Str) == true || OperatorsClass.IsFloatingPoint(value2Str) == true)
+                    return Math.Pow(value1D.Value, value2D.Value).ToString();
+                else
+                {
+                    BigInteger valueBigInt = Convert.ToUInt64(value1D);
+                    int exponent = Convert.ToInt32(value2D);
+                    BigInteger result = BigInteger.Pow(valueBigInt, exponent);
+                    return result.ToString();
+                }
+            }
         }
 
         private string SingleOperandOperation(string value1, string operation)
         {
-            double? result;
-
-            switch(operation)
+            if (operation == "!")
+                return Factorial(value1);
+            else
             {
-                case "sqrt": result = Math.Sqrt(Convert.ToDouble(value1));  break;
-                case "cbrt": result = Math.Cbrt(Convert.ToDouble(value1)); break;
-                case "log": result = Math.Log(Convert.ToDouble(value1)); break;
-                case "log2": result = Math.Log2(Convert.ToDouble(value1)); break;
-                case "log10": result = Math.Log10(Convert.ToDouble(value1)); break;
-                case "logB": result = Math.ILogB(Convert.ToDouble(value1)); break;
-                default: throw new NotImplementedException();
+                double dValue = Convert.ToDouble(value1);
+                double result = operation switch
+                {
+                    "sqrt" => Math.Sqrt(dValue),
+                    "cbrt" => Math.Cbrt(dValue),
+                    "log" => Math.Log(dValue),
+                    "log2" => Math.Log2(dValue),
+                    "log10" => Math.Log10(dValue),
+                    "logB" => Math.ILogB(dValue),
+                    _ => throw new NotImplementedException(),
+                };
+                return result.ToString();
             }
-
-            return result?.ToString();
         }
 
-        private string Factorial(object valueObj)
+        private string Factorial(string valueStr)
         {
-            string valueStr = valueObj?.ToString();
-
-            if (IsFloatingPoint(valueStr) == true)
+            if (OperatorsClass.IsFloatingPoint(valueStr) == true)
                 throw RNCArgumentException(valueStr, "Value1", floatingPointError: true);
-            else if (IsNegative(valueStr) == true)
+            else if (OperatorsClass.IsNegative(valueStr) == true)
                 throw RNCArgumentException(valueStr, "Value1", negativeValueError: true);
             else
             {
-                ulong valueULong = Convert.ToUInt64(((System.Text.Json.JsonElement)valueObj).ToString());
-                BigInteger valueBigInt = valueULong;
+                BigInteger valueBigInt = Convert.ToUInt64(valueStr);
                 for (BigInteger index = (valueBigInt - 1); index > 1; index--)
                     valueBigInt *= index;
                 return valueBigInt.ToString();
@@ -186,10 +167,10 @@ namespace RNC.Library
                 throw new ArgumentNullException("Value cannot be null.");
             else
             {
-                var msg = new StringBuilder($"Invalid argument ({value.ToString()}) for [{valueName}].");
+                var msg = new StringBuilder($"Invalid argument ({value}) for [{valueName}].");
 
                 if (!floatingPointError && !negativeValueError && !nonNullValue2Error)
-                    return new ArgumentException($"Invalid argument ({value.ToString()}) for [{valueName}].");
+                    return new ArgumentException($"Invalid argument ({value}) for [{valueName}].");
                 else
                 {
                     if (floatingPointError)
