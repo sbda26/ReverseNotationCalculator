@@ -6,12 +6,12 @@ namespace RNC.Library
     public static class OperatorsClass
     {
         private readonly static List<string> SingleOperandOperators = new List<string> { "!", "sqrt", "cbrt", "log", "log2", "log10", "logB" };
-        private readonly static List<string> BitwiseOperators = new List<string> { "|", "&", "^", "OR", "AND", "XOR" };
+        private readonly static List<string> BitwiseOperators = new List<string> { "|", "&", "^", "OR", "AND", "XOR", "<<", ">>" };
         public readonly static List<string> AllValidOperators;
 
         static OperatorsClass()
         {
-            AllValidOperators = new List<string> { "+", "-", "*", "/", "÷", "**", "%" };
+            AllValidOperators = new List<string> { "+", "-", "*", "/", "÷", "**", "%", "MED" };
             AllValidOperators.AddRange(SingleOperandOperators);
             AllValidOperators.AddRange(BitwiseOperators);
         }

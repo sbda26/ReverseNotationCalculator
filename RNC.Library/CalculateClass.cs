@@ -67,6 +67,12 @@ namespace RNC.Library
                 case "XOR":
                     result = v1 ^ v2;
                     break;
+                case "<<":
+                    result = (int)v1.Value << (int)v2.Value;
+                    break;
+                case ">>":
+                    result = (int)v1.Value >> (int)v2.Value;
+                    break;
                 default:
                     result = null;
                     break;
@@ -104,6 +110,8 @@ namespace RNC.Library
                         }
                     case "%":
                         result = value1D % value2D; break;
+                    case "MED":
+                        result = Median(value1D.Value, value2D.Value); break;
                     default:
                         result = null; break;
                 }
@@ -157,6 +165,24 @@ namespace RNC.Library
                 for (BigInteger index = (valueBigInt - 1); index > 1; index--)
                     valueBigInt *= index;
                 return valueBigInt.ToString();
+            }
+        }
+
+        private double? Median(double? v1, double? v2)
+        {
+            if (v1 == null || v2 == null)
+                throw new ArgumentNullException("[v1] and [v2] must both be non-null.");
+            else if (v1 == v2)
+                return v1;
+            else
+            {
+                if (v1 > v2)
+                {
+                    double? temp = v1;
+                    v2 = v1;
+                    v1 = temp;
+                }
+                return v1.Value + ((v2.Value - v1.Value) / 2);
             }
         }
 
