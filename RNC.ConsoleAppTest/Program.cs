@@ -25,7 +25,7 @@ namespace RNC.ConsoleAppTest
         static async Task RunMain()
         {
             // https://www.yogihosting.com/aspnet-core-consume-api/#httpclient
-            // https://code-maze.com/different-ways-consume-restful-api-csharp/#HttpClient
+            // https://code-maze.com/different-ways-consume-restful-api-csharp/
 
             bool done = false;
             do
